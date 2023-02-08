@@ -1,6 +1,6 @@
 ## Quick Start
 
-Clone this repository to your local machine and rename the `.env.example` file found in the root directory of the project to `.env` and update the environment variables accordingly. Then you can start the project using Docker or manually using virtual environment.
+Clone this repository to your local machine and rename the `.env.sample` file found in the root directory of the project to `.env`
 
 Using Docker:
 
@@ -33,5 +33,5 @@ $ python manage.py createsuperuser
 $ python manage.py runserver
 ```
 
-6. Open a browser and go to http://localhost:8000/admin
+6. Check in browser go to http://localhost:8000/admin
 
