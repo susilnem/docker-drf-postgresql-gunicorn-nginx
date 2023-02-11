@@ -2,6 +2,7 @@
 FROM python:3.10.9-alpine3.17
 
 #set work directory
+RUN mkdir /app
 WORKDIR /app
 
 #set environment variable
@@ -16,5 +17,13 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
+# copy entrypoint.sh
+COPY ./entrypoint.sh .
+RUN sed -i 's/\r$//g' /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # copy project
 COPY . .
+
+# run entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
