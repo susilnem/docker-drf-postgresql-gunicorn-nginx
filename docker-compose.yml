@@ -1,16 +1,17 @@
-version: '3.10.9'
+version: '3.10'
 
 services:
   web:
-    build: .
-    entrypoint: /app/entrypoint.sh
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
     volumes:
       - .:/app
     env_file:
       - ./.env
-    ports:
-      - 8000:8000
-    command: python /app/manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
   db:
@@ -22,5 +23,14 @@ services:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 1337:80
+    depends_on:
+      - web
 volumes:
   postgres_data:
+  static_volume:
