@@ -10,12 +10,16 @@ ENV PYTHONDONTWRITEBYCODE 1
 ENV PYTHONUNBUFFERED 1
 
 #install pyscopg2 dependencies
-RUN apk update && apk add postgresql-dev python3-dev musl-dev
+RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev linux-headers
 
 #install dependencies
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
+
+#media files
+RUN mkdir -p /media
+RUN mkdir -p /static
 
 # copy entrypoint.sh
 COPY ./entrypoint.sh .
