@@ -7,10 +7,10 @@ services:
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_data:/app/static
-    ports:
-      - "8000:8000"
+      - media_data:/app/media
+    expose:
+      - 8000
     restart: always
-    
     env_file:
       - ./.env
     depends_on:
@@ -24,6 +24,16 @@ services:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_data:/app/static
+      - media_data:/app/media
+    ports:
+      - "8008:80"
+    depends_on:
+      - web
 volumes:
   static_data:
+  media_data:
   postgres_data:
