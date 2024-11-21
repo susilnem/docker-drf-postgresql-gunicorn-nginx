@@ -1,29 +1,20 @@
-# official base image
-FROM python:3.10.9-alpine3.17
+# Use a smaller base image
+FROM python:3.11-bullseye
 
-#set work directory
-RUN mkdir /app
+# Set work directory
 WORKDIR /app
 
-#set environment variable
+# Set environment variables
 ENV PYTHONDONTWRITEBYCODE 1
 ENV PYTHONUNBUFFERED 1
 
-#install pyscopg2 dependencies
-RUN apk update && apk add postgresql-dev python3-dev musl-dev
+COPY requirements /app/
 
-#install dependencies
-RUN pip install --upgrade pip
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+# Install dependencies in one layer to reduce image size
+RUN apk update && \
+    apk add --no-cache postgresql-dev gcc python3-dev musl-dev && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# copy entrypoint.sh
-COPY ./entrypoint.sh .
-RUN sed -i 's/\r$//g' /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# copy project
-COPY . .
-
-# run entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Copy project files
+COPY . /app/

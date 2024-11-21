@@ -1,36 +1,33 @@
-version: '3.10'
-
 services:
+  postgres:
+    image: postgis/postgis:15-3.4-alpine
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_USER: test
+      POSTGRES_DB: test
+    volumes:
+      - './.db/pg-15:/var/lib/postgresql/data'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
-    expose:
-      - 8000
+    build: .
+    tty: true
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-test}
+      DJANGO_DB_HOST: ${DJANGO_DB_HOST:-db}
+      DJANGO_DB_NAME: ${DJANGO_DB_NAME:-test}
+      DJANGO_DB_USER: ${DJANGO_DB_USER:-test}
+      DJANGO_DB_PASS: ${DJANGO_DB_PASS:-test}
     volumes:
       - .:/app
     env_file:
       - ./.env
-    depends_on:
-      - db
-  db:
-    image: postgres:13.0-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - "POSTGRES_HOST_AUTH_METHOD=trust"
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-  nginx:
-    build: ./nginx
-    volumes:
-      - static_volume:/home/app/web/staticfiles
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - 1337:80
+      - 8000:8000
     depends_on:
-      - web
+      - postgres
+
 volumes:
   postgres_data:
-  static_volume:
