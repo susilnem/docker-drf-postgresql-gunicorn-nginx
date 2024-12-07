@@ -9,7 +9,9 @@ metadata:
     release: {{ .Release.Name }}
   
 data:
-  DJANGO_DEBUG: {{ required "env.DJANGO_DEBUG" .Values.env.DJANGO_DEBUG | quote }}
+  DEBUG: {{ required "env.DEBUG" .Values.env.DEBUG | quote }}
   ENVIRONMENT: {{ required "env.ENVIRONMENT" .Values.env.ENVIRONMENT | quote }}
+  ALLOWED_HOSTS: {{ required "env.ALLOWED_HOSTS" .Values.env.ALLOWED_HOSTS | quote }}
+
   # email
   DEFAULT_FROM_EMAIL: {{ required "env.DEFAULT_FROM_EMAIL" .Values.env.DEFAULT_FROM_EMAIL | quote }}
