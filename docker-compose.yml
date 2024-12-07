@@ -15,7 +15,7 @@ services:
     tty: true
     environment:
       SECRET_KEY: ${SECRET_KEY:-test}
-      DJANGO_DB_HOST: ${DJANGO_DB_HOST:-db}
+      DJANGO_DB_HOST: ${DJANGO_DB_HOST:-postgres}
       DJANGO_DB_NAME: ${DJANGO_DB_NAME:-test}
       DJANGO_DB_USER: ${DJANGO_DB_USER:-test}
       DJANGO_DB_PASS: ${DJANGO_DB_PASS:-test}

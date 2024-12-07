@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 
 /data
+.db/
+deploy/
+go-logs/
+media/

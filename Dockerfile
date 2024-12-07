@@ -8,11 +8,12 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYCODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY requirements /app/
+COPY requirements.txt /app/
 
 # Install dependencies in one layer to reduce image size
-RUN apk update && \
-    apk add --no-cache postgresql-dev gcc python3-dev musl-dev && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc vim musl-dev && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
