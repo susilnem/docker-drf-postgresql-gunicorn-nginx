@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  # This name uniquely identifies the ConfigMap
+  name: {{ template "django-backend-app.fullname" . }}-configmap
+  labels:
+    app: {{ template "django-backend-app.fullname" . }}
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+  
+data:
+  DJANGO_DEBUG: {{ required "env.DJANGO_DEBUG" .Values.env.DJANGO_DEBUG | quote }}
+  ENVIRONMENT: {{ required "env.ENVIRONMENT" .Values.env.ENVIRONMENT | quote }}
+  # email
+  DEFAULT_FROM_EMAIL: {{ required "env.DEFAULT_FROM_EMAIL" .Values.env.DEFAULT_FROM_EMAIL | quote }}
