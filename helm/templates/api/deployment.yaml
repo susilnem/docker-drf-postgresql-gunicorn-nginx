@@ -1,0 +1,55 @@
+{{- if .Values.api.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ template "django-backend-app.fullname" . }}-api
+  labels:
+    app: {{ template "django-backend-app.fullname" . }}
+    component: {{ template "django-backend-app.fullname" . }}-api
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "django-backend-app.fullname" . }}
+      component: {{ template "django-backend-app.fullname" . }}-api
+
+  template:
+    metadata:
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/config/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/config/secret.yaml") . | sha256sum }}
+
+      labels:
+        app: {{ template "django-backend-app.fullname" . }}
+        component: {{ template "django-backend-app.fullname" . }}-api
+    spec:
+      container:
+        - name: {{ template "django-backend-app.name" . }}-api
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.api.containerPort }}
+          volumeMounts:
+            - name: api-config
+              mountPath: /app/config
+            - name: api-secrets
+              mountPath: /app/secrets
+          resources:
+          # Can be used like this
+          #  {{- toYaml .Values.api.resources | nindent 12 }}
+            limits:
+              cpu: {{ .Values.api.resources.limits.cpu }}
+              memory: {{ .Values.api.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.api.resources.requests.cpu }}
+              memory: {{ .Values.api.resources.requests.memory }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "django-backend-app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ template "django-backend-app.fullname" . }}-secret
+{{- end }}

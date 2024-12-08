@@ -1,0 +1,73 @@
+environment: test
+
+replicaCount: 1
+
+image:
+  name: IMAGE NAME
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: TAG NAME
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: true
+  className: nginx
+  host: test.com
+
+postgresql:
+  enabled: true
+  fullnameOverride: ""
+  architecture: standalone
+  auth:
+    postgresPassword: ""
+    username: ""
+    password: ""
+    database: ""
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
+
+api:
+  enabled: true
+  replicaCount: 1
+  containerPort: 80
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  resources:
+    requests:
+      cpu: "2"
+      memory: 1Gi
+    limits:
+      cpu: "4"
+      memory: 2Gi
+
+env:
+  DEBUG: false
+  DEFAULT_FROM_EMAIL: test.example.com
+  ENVIRONMENT: test
+  ALLOWED_HOSTS: " "
+
+secrets:
+  SECRET_KEY: dummy-secret-key
+  # postgres Database 
+  DJANGO_DB_NAME: dummy
+  DJANGO_DB_USER: dummy
+  DJANGO_DB_PASS: dummy
+  DJANGO_DB_HOST: dummy
+
+  # SMTP EMAIL CREDENTIALS
+  EMAIL_HOST: dummy.com
+  EMAIL_PORT: 443
+  EMAIL_HOST_USER: dummy
+  EMAIL_HOST_PASSWORD: dummy

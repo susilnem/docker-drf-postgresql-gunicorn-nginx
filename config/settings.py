@@ -16,6 +16,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost', cast=Csv()),
 
+ENVIRONMENT = config('ENVIRONMENT', default='development')
 
 # Application definition
 
@@ -167,6 +168,8 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config('EMAIL_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
+
 
 # Phone number field
 PHONENUMBER_DEFAULT_REGION = 'ET'

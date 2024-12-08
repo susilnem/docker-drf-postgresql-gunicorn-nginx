@@ -1,0 +1,46 @@
+environment: test
+
+ingress:
+  enabled: true
+  className: nginx
+  host: test.example.com
+
+postgresql:
+  enabled: true
+
+image:
+  pullPolicy: IfNotPresent
+  name: test
+  tag: latest
+
+api:
+  replicaCount: 1
+  enabled: true
+  containerPort: 80
+  resources:
+    requests:
+      cpu: "200m"
+      memory: 128Mi
+    limits:
+      cpu: "1m"
+      memory: 128Mi
+
+env:
+  DEBUG: false
+  DEFAULT_FROM_EMAIL: test@test.com
+  ENVIRONMENT: test
+  ALLOWED_HOSTS: " "
+
+secrets:
+  SECRET_KEY: test
+  # postgres Database 
+  DJANGO_DB_NAME: test
+  DJANGO_DB_USER: test
+  DJANGO_DB_PASS: test
+  DJANGO_DB_HOST: test
+
+  # SMTP EMAIL CREDENTIALS
+  EMAIL_HOST: test.com
+  EMAIL_PORT: 443
+  EMAIL_HOST_USER: test
+  EMAIL_HOST_PASSWORD: test

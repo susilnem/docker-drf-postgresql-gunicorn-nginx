@@ -1,0 +1,23 @@
+{{- if .Values.api.enabled }}
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: {{ template "django-backend-app.fullname" . }}-api
+  labels:
+    app: {{ template "django-backend-app.fullname" . }}
+    component: {{ template "django-backend-app.fullname" . }}-api
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ template "django-backend-app.fullname" . }}
+    component: {{ template "django-backend-app.fullname" . }}-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.api.containerPort }}
+{{- end }}
