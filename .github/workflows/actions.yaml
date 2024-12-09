@@ -1,0 +1,111 @@
+name: Django Test Runner
+
+on:
+# The `workflow_dispatch` event allows you to manually trigger a workflow run.
+# A workflow can be manually triggered using the GitHub API, GitHub CLI, or GitHub browser interface.
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+      - 'project/**'
+  pull_request:
+    branches:
+      - 'main'
+      - 'project/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Tag for Docker image
+        id: tag
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Set up docker image layer
+        id: buildx
+        uses: docker/setup-buildx-action@master
+
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: ${{ steps.tag.outputs.tag }}
+
+      - name: Check if any migrations is remaining and throw error
+        run: |
+          cp .env.sample .env
+          ## Check if any migrations is remaining and throw error
+          docker-compose -f docker-compose.yml run --rm web python manage.py makemigrations --check --dry-run ||
+          { echo "Migrations are not up to date. Please run 'make migrations' and commit the changes."; exit 1; }
+
+      - name: Run Django Tests
+        run: |
+          docker-compose -f docker-compose.yml run --rm web python manage.py test ||
+          { echo "Tests failed. Please fix the issues and try again."; exit 1; }
+          
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image
+       # push the image to Docker Hub only if the branch is main and the event is push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.tag.outputs.tag }}
+
+  validate-helm:
+    name: validating helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Helm
+      uses: azure/setup-helm@v4
+
+    - name: Check if helm chart is valid
+      run: |
+        helm lint helm/ --values helm/values-test.yaml ||
+        { echo "Helm chart is not valid. Please fix the issues and try again."; exit 1; }
+
+  deploy:
+    name: Build and deploy helm chart
+    needs: [build, validate-helm]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Build docker image
+      uses: docker/build-push-action@v5
+
+    - name: Log in to Github Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # TODO: Add the deployment steps here
+    # 1. Install Helm
+    # 2. Build docker image
+    # 3. Push docker image and tags to Github Container Registry
+    # 4. Update the helm release with the new image tag in Chart.yaml
+    # 5. Package the helm chart and push it to the Github Container Registry
